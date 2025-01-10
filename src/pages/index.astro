@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BlogCard from '../components/BlogCard.astro';
+import { getPosts, type Post } from '../lib/wordpress';
+
+const posts = await getPosts();
+---
+
+<Layout title="My Blog">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-4xl font-bold text-center mb-12 text-white">Últimos Posts</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {
+        posts.map((post: Post) => (
+          <BlogCard
+            id={post.id}
+            title={post.title.rendered}
+            excerpt={post.excerpt.rendered}
+            imageUrl={post._embedded?.['wp:featuredmedia']?.[0]?.source_url}
+            category={post._embedded?.['wp:term']?.[0]?.[0]?.name}
+            categorySlug={post._embedded?.['wp:term']?.[0]?.[0]?.slug}
+          />
+        ))
+      }
+    </div>
+  </main>
+</Layout>

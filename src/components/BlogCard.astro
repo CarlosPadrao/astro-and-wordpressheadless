@@ -1,0 +1,35 @@
+---
+interface Props {
+  id: number;
+  title: string;
+  excerpt: string;
+  imageUrl?: string;
+  category?: string;
+  categorySlug?: string;
+}
+
+const { id, title, excerpt, imageUrl = '/placeholder.jpg', category, categorySlug } = Astro.props;
+---
+
+<article class="bg-white rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+  <img
+    src={imageUrl}
+    alt={title}
+    class="w-full h-48 object-cover"
+  />
+  <div class="p-6">
+    {category && categorySlug && (
+      <a 
+        href={`/category/${categorySlug}`}
+        class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full mb-2 hover:bg-blue-200 transition-colors"
+      >
+        {category}
+      </a>
+    )}
+    <h2 class="text-2xl font-bold mb-2 text-gray-800">{title}</h2>
+    <div class="text-gray-600 line-clamp-3" set:html={excerpt} />
+    <div class="mt-4">
+      <a href={`/post/${id}`} class="text-blue-600 hover:text-blue-800 font-semibold">Read more →</a>
+    </div>
+  </div>
+</article>

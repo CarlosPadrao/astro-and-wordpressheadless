@@ -1,0 +1,66 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getPost, getPosts, type Post } from '../../lib/wordpress';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { id: post.id.toString() },
+  }));
+}
+
+const { id } = Astro.params;
+const post = await getPost(parseInt(id as string));
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('pt-BR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+---
+
+<Layout title={post.title.rendered}>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article class="bg-white rounded-lg overflow-hidden shadow-xl">
+      {post._embedded?.['wp:featuredmedia']?.[0]?.source_url && (
+        <img
+          src={post._embedded['wp:featuredmedia'][0].source_url}
+          alt={post.title.rendered}
+          class="w-full h-96 object-cover"
+        />
+      )}
+      
+      <div class="p-8">
+        <div class="flex items-center gap-4 mb-6">
+          {post._embedded?.['wp:term']?.[0]?.[0]?.name && (
+            <span class="px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
+              {post._embedded['wp:term'][0][0].name}
+            </span>
+          )}
+          <time class="text-gray-500" datetime={post.date}>
+            {formatDate(post.date)}
+          </time>
+        </div>
+
+        <h1 class="text-4xl font-bold text-gray-900 mb-6" set:html={post.title.rendered} />
+        
+        <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 hover:prose-a:text-blue-800 prose-img:rounded-lg prose-img:shadow-md" set:html={post.content.rendered} />
+        
+        <div class="mt-8 pt-8 border-t border-gray-200">
+          <a href="/" class="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Voltar para a lista de posts
+          </a>
+        </div>
+      </div>
+    </article>
+  </main>
+</Layout>
