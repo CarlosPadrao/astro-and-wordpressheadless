@@ -1,5 +1,6 @@
 export interface Post {
   id: number;
+  slug: string;
   title: {
     rendered: string;
   };
@@ -46,13 +47,13 @@ export async function getPosts() {
   }
 }
 
-export async function getPost(id: number) {
+export async function getPostBySlug(slug: string) {
   try {
     const response = await fetch(
-      `https://sejarelevante.fdc.org.br/wp-json/wp/v2/posts/${id}?_embed`
+      `https://sejarelevante.fdc.org.br/wp-json/wp/v2/posts?_embed&slug=${slug}`
     );
-    const post = await response.json();
-    return post as Post;
+    const posts = await response.json();
+    return posts[0] as Post;
   } catch (error) {
     console.error('Error fetching post:', error);
     return null;
@@ -72,19 +73,6 @@ export async function getPostsByCategory(categoryId: number) {
   }
 }
 
-export async function getPostsByTag(tagId: number) {
-  try {
-    const response = await fetch(
-      `https://sejarelevante.fdc.org.br/wp-json/wp/v2/posts?_embed&tags=${tagId}&per_page=9`
-    );
-    const posts = await response.json();
-    return posts as Post[];
-  } catch (error) {
-    console.error('Error fetching posts by tag:', error);
-    return [];
-  }
-}
-
 export async function getCategory(slug: string) {
   try {
     const response = await fetch(
@@ -95,6 +83,19 @@ export async function getCategory(slug: string) {
   } catch (error) {
     console.error('Error fetching category:', error);
     return null;
+  }
+}
+
+export async function getPostsByTag(tagId: number) {
+  try {
+    const response = await fetch(
+      `https://sejarelevante.fdc.org.br/wp-json/wp/v2/posts?_embed&tags=${tagId}&per_page=9`
+    );
+    const posts = await response.json();
+    return posts as Post[];
+  } catch (error) {
+    console.error('Error fetching posts by tag:', error);
+    return [];
   }
 }
 

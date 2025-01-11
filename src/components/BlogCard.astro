@@ -1,6 +1,6 @@
 ---
 interface Props {
-  id: number;
+  slug: string;
   title: string;
   excerpt: string;
   imageUrl?: string;
@@ -8,28 +8,33 @@ interface Props {
   categorySlug?: string;
 }
 
-const { id, title, excerpt, imageUrl = '/placeholder.jpg', category, categorySlug } = Astro.props;
+const { slug, title, excerpt, imageUrl = '/placeholder.jpg', category, categorySlug } = Astro.props;
 ---
 
 <article class="bg-white rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
-  <img
-    src={imageUrl}
-    alt={title}
-    class="w-full h-48 object-cover"
-  />
+  <a href={`/post/${slug}`}>
+    <img
+      src={imageUrl}
+      alt={title}
+      class="w-full h-48 object-cover"
+    />
+  </a>
   <div class="p-6">
     {category && categorySlug && (
-      <a 
+      <a
         href={`/category/${categorySlug}`}
         class="inline-block px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full mb-2 hover:bg-blue-200 transition-colors"
       >
         {category}
       </a>
     )}
-    <h2 class="text-2xl font-bold mb-2 text-gray-800">{title}</h2>
-    <div class="text-gray-600 line-clamp-3" set:html={excerpt} />
-    <div class="mt-4">
-      <a href={`/post/${id}`} class="text-blue-600 hover:text-blue-800 font-semibold">Read more →</a>
-    </div>
+    <h2 class="text-2xl font-bold mb-2 text-gray-800">
+      <a href={`/post/${slug}`} class="hover:text-blue-600 transition-colors">
+        {title}
+      </a>
+    </h2>
+    <a href={`/post/${slug}`} class="block hover:text-blue-600 transition-colors">
+      <div class="text-gray-600 line-clamp-3 mb-4" set:html={excerpt} />
+    </a>
   </div>
 </article>

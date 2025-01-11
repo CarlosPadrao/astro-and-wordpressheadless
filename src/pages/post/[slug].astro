@@ -1,20 +1,22 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getPost, getPosts, type Post } from '../../lib/wordpress';
+import { getPostBySlug, getPosts, type Post } from '../../lib/wordpress';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   return posts.map((post) => ({
-    params: { id: post.id.toString() },
+    params: { slug: post.slug },
   }));
 }
 
-const { id } = Astro.params;
-const post = await getPost(parseInt(id as string));
+const { slug } = Astro.params;
+const post = await getPostBySlug(slug as string);
 
 if (!post) {
   return Astro.redirect('/404');
 }
+
+const tags = post._embedded?.['wp:term']?.[1] || [];
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -35,13 +37,16 @@ function formatDate(dateString: string) {
           class="w-full h-96 object-cover"
         />
       )}
-      
+
       <div class="p-8">
-        <div class="flex items-center gap-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4 mb-6">
           {post._embedded?.['wp:term']?.[0]?.[0]?.name && (
-            <span class="px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
+            <a
+              href={`/category/${post._embedded['wp:term'][0][0].slug}`}
+              class="px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+            >
               {post._embedded['wp:term'][0][0].name}
-            </span>
+            </a>
           )}
           <time class="text-gray-500" datetime={post.date}>
             {formatDate(post.date)}
@@ -49,9 +54,25 @@ function formatDate(dateString: string) {
         </div>
 
         <h1 class="text-4xl font-bold text-gray-900 mb-6" set:html={post.title.rendered} />
-        
+
         <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 hover:prose-a:text-blue-800 prose-img:rounded-lg prose-img:shadow-md" set:html={post.content.rendered} />
-        
+
+        {tags.length > 0 && (
+          <div class="mt-8 pt-8 border-t border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Tags:</h2>
+            <div class="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <a
+                  href={`/tag/${tag.slug}`}
+                  class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  {tag.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div class="mt-8 pt-8 border-t border-gray-200">
           <a href="/" class="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
