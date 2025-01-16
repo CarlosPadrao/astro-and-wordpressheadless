@@ -11,7 +11,7 @@ interface Props {
 const { slug, title, excerpt, imageUrl = '/placeholder.jpg', category, categorySlug } = Astro.props;
 ---
 
-<article class="bg-white rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+<article class="bg-white rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-100">
   <a href={`/post/${slug}`}>
     <img
       src={imageUrl}
